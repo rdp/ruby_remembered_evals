@@ -14,18 +14,10 @@ module Kernel
  >> $a
  => 3
 
- doctest: TODO works with class methods, too too [and let them pass unharmed, since they're string eval's]
- > class A; end
- should work with a string
- > A.class_eval "def yo; 3; end"
- > A.instance_methods.contain? 'yo'
- > true
- and with a block, too
- > A.class_eval { def go; 3; end}
- > A.instance_methods.contain? 'go'
+ TODO work with class_eval, too
 
- this makes it work with backtraces...differently, too
 
+ Using it causes the backtraces to behave slightly differently
  >> eval "begin; raise; rescue Exception => e; $a = e; end"
  >> $a.backtrace[0].include? '.remembered_evals/'
  >> true
@@ -33,7 +25,6 @@ module Kernel
 =end
 
  def eval *args # string, binding, file, line [file and line are hereby ignored since ours supplant it]
-  puts 'evaling away', args
   path = '.remembered_evals'
   Dir.mkdir path unless File.directory? path
   digest = Digest::MD5.hexdigest("Hello World\n")
