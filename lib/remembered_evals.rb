@@ -25,8 +25,12 @@ class RememberedEval
   Dir.mkdir path unless File.directory? path
   # create something like /code0xdeadbeef for filename
   fullpath = path + '/' + File.sanitize(code_string[0..31]).gsub('_', '') + Digest::MD5.hexdigest(code_string)[0..63] # don't need too long here
-  File.write(fullpath, code_string) unless File.exist? fullpath # write it out [prefer old data there, so people can edit them by hand if they are experimenting with eval'ed code]
-  fullpath
+  if File.exist? fullpath
+    code_string = File.read(fullpath)
+  else
+    File.write(fullpath, code_string) # write it out [prefer old data there, so people can edit them by hand if they are experimenting with eval'ed code]
+  end
+  [code_string, fullpath]
  end
 
 end
@@ -38,8 +42,8 @@ class Module
   if block_given? # this one is already sourced
     original_class_eval { yield }
   else
-    path = RememberedEval.cache_code args[0]
-    original_class_eval args[0], path, 1 # no binding here
+    code, path = RememberedEval.cache_code args[0]
+    original_class_eval code, path, 1 # no binding here
   end
  end
 end
@@ -51,8 +55,8 @@ class Class
   if block_given? # this one is already sourced
     original_class_eval { yield }
   else
-    path = RememberedEval.cache_code args[0]
-    original_class_eval args[0], path, 1 # no binding here
+    code, path = RememberedEval.cache_code args[0]
+    original_class_eval code, path, 1 # no binding here
   end
  end
 end
@@ -61,8 +65,8 @@ end
 class Object
  alias :original_eval :eval
  def eval *args
-   path = RememberedEval.cache_code args[0]
-   original_eval args[0], args[1], path, 1 # args[1] is binding, args[0] is the code, ignore args[2], 3, which we replace :)
+   code, path = RememberedEval.cache_code args[0]
+   original_eval code, args[1], path, 1 # args[1] is binding, ignore args[2], 3 [file, line no]
  end
 
 end
