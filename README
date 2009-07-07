@@ -1,6 +1,12 @@
-See the file lib/remembered_evals.rb for description.
+remembered_evals:
 
-Note that if all you want to do is save the code away [not necessarily debug into it] then you can 
+library to save away eval'ed code to a file first, so that it can be seen later [ex: while debugging]
+
+it monkey patches Kernel.eval to save eval'ed strings to a file at .remembered_evals/hash_of_that_file
+
+Thus you can debug [ex: using ruby-debug] THROUGH eval'ed code, now, as well as see appropriate eval'ed code lines in exception backtraces.
+
+Note that if all you want to do is save the code away [not debug through] then you can 
 set
 SCRIPT_LINES__ = {}
-somewhere in your script, too.
+somewhere in your script.
