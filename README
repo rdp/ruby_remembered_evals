@@ -14,4 +14,4 @@ a = 3
 eval("a = 4") # breaks
 eval("a = 4", binding) # works though
 
-The price we pay for debugging convenience.
+The price we pay for debugging convenience.  You may want to therefore do all you gem requires before loading it.

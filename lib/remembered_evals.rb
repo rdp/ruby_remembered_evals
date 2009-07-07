@@ -18,7 +18,7 @@ class RememberedEval
  Using it causes the backtraces to behave slightly differently [I'd call it better]
  >> eval "begin; raise; rescue Exception => e; $exception = e; end"
  >> $exception.backtrace[0]
- => "._remembered_evals/begin__raise__rescue_Exception__a48fc331d57ebd559347525d306d6a67:1:in `eval'"
+ => "._remembered_evals/beginraiserescueExceptiona48fc331d57ebd559347525d306d6a67:1:in `eval'"
 
 =end
 
@@ -26,7 +26,7 @@ class RememberedEval
   path = '._remembered_evals'
   Dir.mkdir path unless File.directory? path
   # create something like /code0xdeadbeef for filename
-  fullpath = path + '/' + File.sanitize(code_string[0..31]) + Digest::MD5.hexdigest(code_string)[0..63] # don't need too long here
+  fullpath = path + '/' + File.sanitize(code_string[0..31]).gsub('_', '') + Digest::MD5.hexdigest(code_string)[0..63] # don't need too long here
   saved = File.write(fullpath, code_string) # write it out
   fullpath
  end
