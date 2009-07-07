@@ -33,6 +33,19 @@ class RememberedEval
 
 end
 
+class Module
+ alias :original_class_eval :module_eval
+
+ def module_eval *args
+  if block_given? # this one is already sourced
+    original_class_eval { yield }
+  else
+    path = RememberedEval.cache_code args[0]
+    original_class_eval args[0], path, 1 # no binding here
+  end
+ end
+end
+
 class Class
  alias :original_class_eval :class_eval
 
@@ -63,12 +76,13 @@ end
  >> A.new.go3
  => 3
 
- it reverts back to normal [non-cached] behavior unless you pass it a binding [?]
+ doctest: it reverts back to normal [non-cached] behavior unless you pass it a binding [?]
  >> a = 3
  >> eval "a = 4"
  >> a
  => 4
 
+ doctest: works with modules, too
  >> module M; end
  >> M.module_eval "def go; 3; end"
  >> M.instance_methods
