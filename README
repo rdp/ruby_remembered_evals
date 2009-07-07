@@ -1,0 +1,6 @@
+See the file lib/remembered_evals.rb for description.
+
+Note that if all you want to do is save the code away [not necessarily debug into it] then you can 
+set
+SCRIPT_LINES__ = {}
+somewhere in your script, too.
