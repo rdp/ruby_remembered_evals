@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Roger Pack"]
   s.date = %q{2009-05-22}
-  s.description = %q{library to save away eval'ed code to a file first, so that it can be seen later [ex: while debugging]}
+  s.description = s.summary = %q{library to save away eval'ed code to a file first, so that it can be seen later [ex: while debugging]}
   s.email = ["rogerdpack@gmail.comm"]
   s.files = ["lib/remembered_evals.rb"]
   s.homepage = %q{http://github.com/rogerdpack/ruby_remembered_eval/tree/master}
