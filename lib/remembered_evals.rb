@@ -3,10 +3,8 @@ require 'rubygems'
 require 'facets/file/write'
 require 'facets/file/read' # File.sanitize
 
-class RememberedEval
 
 =begin rdoc
- # method_name, string, binding, file, line [file and line are hereby ignored since ours supplant it]
  doctest: eval saves away files into some path, then eval's them from there
  >> eval "$a = 3"
  >> File.directory? '._remembered_evals'
@@ -21,13 +19,13 @@ class RememberedEval
  => "._remembered_evals/beginraiserescueExceptiona48fc331d57ebd559347525d306d6a67:1:in `eval'"
 
 =end
-
+class RememberedEval
  def self.cache_code code_string
   path = '._remembered_evals'
   Dir.mkdir path unless File.directory? path
   # create something like /code0xdeadbeef for filename
   fullpath = path + '/' + File.sanitize(code_string[0..31]).gsub('_', '') + Digest::MD5.hexdigest(code_string)[0..63] # don't need too long here
-  saved = File.write(fullpath, code_string) # write it out
+  File.write(fullpath, code_string) unless File.exist? fullpath # write it out [prefer old data there, so people can edit them by hand if they are experimenting with eval'ed code]
   fullpath
  end
 
