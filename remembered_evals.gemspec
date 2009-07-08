@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.date = %q{2009-05-22}
   s.description = s.summary = %q{library to save away eval'ed code to a file first, so that it can be seen later [ex: while debugging]}
   s.email = ["rogerdpack@gmail.comm"]
-  s.files = ["lib/remembered_evals.rb", "README"]
+  s.files = ["lib/remembered_evals.rb", "README", "ChangeLog"]
   s.extra_rdoc_files = ["README"]
   s.rdoc_options = ["--main", "README"]
   s.homepage = %q{http://github.com/rogerdpack/ruby_remembered_eval/tree/master}
