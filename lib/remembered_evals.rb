@@ -1,7 +1,15 @@
 require 'digest/md5'
 require 'rubygems'
-require 'facets/file/write'
-require 'facets/file/read' # File.sanitize
+require 'facets/file/write' # File.write
+
+class File # from facets, with a work around for 1.9.1
+  def self.sanitize(filename)
+     filename = File.basename(filename.gsub("\\", "/")).dup # work-around for IE
+     filename.gsub!(/[^a-zA-Z0-9\.\-\+_]/,"_")
+     filename = "_#{filename}" if filename =~ /^\.+$/
+     filename
+   end
+end
 
 
 =begin rdoc
@@ -87,8 +95,8 @@ end
  doctest: works with modules, too
  >> module M; end
  >> M.module_eval "def go; 3; end"
- >> M.instance_methods
- => ["go"]
+ >> M.instance_methods[0].to_s # 1.9 shenanigans
+ => "go"
 
 =end
 
