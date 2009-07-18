@@ -1,19 +1,22 @@
 remembered_evals:
 
-A library to make debugging eval'ed code possible.  It monkey patches Kernel.eval, module_eval, and class_eval to save eval'ed code to a file at ._remembered_evals/hash_of_that_file
+A library to make debugging eval'ed code possible.  
 
-Thus you can debug [ex: using ruby-debug] THROUGH eval'ed code, now, as well as see appropriate (better) eval'ed code lines in exception backtraces.
+It monkey patches Kernel.*eval to save eval'ed code to a cache file before evaluating it (at ~/._remembered_evals/hash_of_that_code).
 
-Since it saves files by hash, and doesn't rewrite them once saved, you could also edit eval'ed blocks and it will use the edited versions--i.e. it allows you to override certain strings passed to eval [it uses yours instead of the original]-- quite useful for debugging purposes if you use eval at all.
+Thus you can subsequently debug [ex: using ruby-debug] THROUGH eval'ed code, now, as well as see appropriate (better) eval'ed code lines in exception backtraces.
 
-Note that if all you want to do is save the code away [not debug through] then you can 
-set
+It also offers a tool for developers:  Since it saves files by hash, and doesn't write over them once saved, you can actually edit eval'ed blocks and it will subsequently eval the edited version--i.e. it allows you to override certain strings passed to eval [it uses yours instead of the original]-- quite useful for debugging purposes if you use meta-programming.
+
+Note that if all you want to do is save the code away [not debug through] then you can set
 SCRIPT_LINES__ = {}
-somewhere in your script.
+somewhere in your script and MRI will do this for you.  It's unclear [and under-documented] what this means.
 
 Note also that it breaks eval'ed code that assumes the default binding, i.e.
 a = 3
-eval("a = 4") # breaks
+eval("a = 4") # this won't work right
 eval("a = 4", binding) # works though
 
-The price we pay for debugging convenience.  You may want to therefore do all you gem requires before loading it.
+The small price we pay for debugging convenience.  To minimize the impact of this, require all other gems before this one.
+
+Feedback welcome rogerdpack @ github
