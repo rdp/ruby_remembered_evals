@@ -4,16 +4,18 @@ require 'facets/file/write' # File.write
 
 class File # from facets, with a work around for 1.9.1
   def self.sanitize(filename)
-     filename = File.basename(filename.gsub("\\", "/")).dup # work-around for IE
-     filename.gsub!(/[^a-zA-Z0-9\.\-\+_]/,"_")
-     filename = "_#{filename}" if filename =~ /^\.+$/
-     filename
-   end
+    filename = File.basename(filename.gsub("\\", "/")).dup # work-around for IE
+    filename.gsub!(/[^a-zA-Z0-9\.\-\+_]/,"_")
+    filename = "_#{filename}" if filename =~ /^\.+$/
+    filename
+  end
 end
 
 
 =begin rdoc
  doctest: eval saves away files into some path, then eval's them from there
+ >> require 'fileutils'; FileUtils.rm_rf '._remembered_evals'
+ >> RememberedEval.replace!
  >> eval "$a = 3"
  >> File.directory? '._remembered_evals'
  => true
@@ -28,55 +30,58 @@ end
 
 =end
 class RememberedEval
- def self.cache_code code_string
-  path = '._remembered_evals'
-  Dir.mkdir path unless File.directory? path
-  # create something like /code0xdeadbeef for filename
-  fullpath = path + '/' + File.sanitize(code_string[0..31]).gsub('_', '') + Digest::MD5.hexdigest(code_string)[0..63] # don't need too long here
-  if File.exist? fullpath
-    code_string = File.read(fullpath)
-  else
-    File.write(fullpath, code_string) # write it out [prefer old data there, so people can edit them by hand if they are experimenting with eval'ed code]
+  def self.cache_code code_string
+    path = '._remembered_evals'
+    Dir.mkdir path unless File.directory? path
+    # create something like /code0xdeadbeef for filename
+    fullpath = path + '/' + File.sanitize(code_string[0..31]).gsub('_', '') + Digest::MD5.hexdigest(code_string)[0..63] # don't need too long here
+    if File.exist? fullpath
+      code_string = File.read(fullpath)
+    else
+      File.write(fullpath, code_string) # write it out [prefer old data there, so people can edit them by hand if they are experimenting with eval'ed code]
+    end
+    [code_string, fullpath]
   end
-  [code_string, fullpath]
- end
 
-end
+  def self.replace!
 
-class Module
- alias :original_class_eval :module_eval
+    eval("
+    class ::Module
+      alias :original_class_eval :module_eval
 
- def module_eval *args
-  if block_given? # this one is already sourced
-    original_class_eval { yield }
-  else
-    code, path = RememberedEval.cache_code args[0]
-    original_class_eval code, path, 1 # no binding here
+      def module_eval *args
+        if block_given? # this one is already sourced
+          original_class_eval { yield }
+        else
+          code, path = RememberedEval.cache_code args[0]
+          original_class_eval code, path, 1 # no binding here
+        end
+      end
+    end
+
+    class ::Class
+      alias :original_class_eval :class_eval
+
+      def class_eval *args
+        if block_given? # this one is already sourced
+          original_class_eval { yield }
+        else
+          code, path = RememberedEval.cache_code args[0]
+          original_class_eval code, path, 1 # no binding here
+        end
+      end
+    end
+
+    class ::Object
+      alias :original_eval :eval
+      def eval *args
+        code, path = RememberedEval.cache_code args[0]
+        original_eval code, args[1], path, 1 # args[1] is binding, ignore args[2], 3 [file, line no]
+      end
+
+    end")
+
   end
- end
-end
-
-class Class
- alias :original_class_eval :class_eval
-
- def class_eval *args
-  if block_given? # this one is already sourced
-    original_class_eval { yield }
-  else
-    code, path = RememberedEval.cache_code args[0]
-    original_class_eval code, path, 1 # no binding here
-  end
- end
-end
-
-
-class Object
- alias :original_eval :eval
- def eval *args
-   code, path = RememberedEval.cache_code args[0]
-   original_eval code, args[1], path, 1 # args[1] is binding, ignore args[2], 3 [file, line no]
- end
-
 end
 
 =begin rdoc
@@ -86,7 +91,7 @@ end
  >> A.new.go3
  => 3
 
- doctest: it reverts back to normal [non-cached] behavior unless you pass it a binding [?]
+ doctest: it reverts back to normal [non-cached] behavior unless you pass it a binding [?] known to fail!
  >> a = 3
  >> eval "a = 4"
  >> a
@@ -99,4 +104,3 @@ end
  => "go"
 
 =end
-
