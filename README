@@ -9,21 +9,18 @@ You can thus debug [ex: using ruby-debug] THROUGH eval'ed code, now, as well as 
 It also offers an additional tool for developers:  Since it saves code by hash value, and doesn't write over cached files, you can actually edit eval'ed blocks and it will eval the edited version--i.e. it allows you to override certain strings passed to eval [it uses yours instead of the original]-- quite useful for debugging purposes if you use meta-programming heavily.
 
 Note also that it breaks eval'ed code that assumes the default binding, i.e.
-a = 3
 eval("a = 4") # this won't work right
 eval("a = 4", binding) # works though
 
 The small price we pay for debugging convenience.  To minimize the impact of this, require all other gems before this one.
 
 Competition:
-Note that if all you want to do is save the code away [not debug through] then you can set
-SCRIPT_LINES__ = {}
-somewhere in your script and MRI will do this for you.  It's unclear [and under-documented] what this means.
+None known
 
 Install:
-gem sources -a http://gems.github.com # if necessary
-gem install rogerdpack-remembered_evals # may need to precede with sudo
+$ gem sources -a http://gems.github.com # if necessary
+$ gem install rogerdpack-remembered_evals # may need to precede with sudo
 
-Then enjoy the eval'ed code bliss.
+require 'remembered_evals' at the beginning of your script, then enjoy the eval'ed code bliss.
 
-Feedback welcome rogerdpack @ github
+Feedback welcome rdp@github
